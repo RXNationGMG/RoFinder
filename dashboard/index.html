@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#182820">
+  <title>RoFinder | Local Console</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="RoFinder dashboard home">
+      <span class="brand-mark">RF</span>
+      <span class="brand-name">ROFINDER<span class="brand-divider">/</span>LOCAL CONSOLE</span>
+    </a>
+    <div class="masthead-right">
+      <span class="local-tag"><span class="local-dot"></span> LOOPBACK ONLY</span>
+      <span class="version-tag">CONTROL CENTER</span>
+    </div>
+  </header>
+
+  <main class="dashboard">
+    <section class="scan-heading" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">ROBLOX GROUP SCANNER <span class="eyebrow-rule"></span> By RXNation</p>
+        <div class="title-line">
+          <h1 id="page-title">Scan console</h1>
+          <span id="scanner-state" class="state-pill state-idle"><span class="state-dot"></span> IDLE</span>
+        </div>
+        <p class="lede">This is where you will find most of the info</p>
+      </div>
+      <div class="primary-actions">
+        <button id="start-button" class="button button-start" type="button"><span aria-hidden="true">▶</span> Start scan</button>
+        <button id="stop-button" class="button button-stop" type="button"><span aria-hidden="true">■</span> Stop scan</button>
+      </div>
+    </section>
+
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+    <section class="metric-grid" aria-label="Scan counters">
+      <article class="metric metric-primary"><span class="metric-label">GROUP CHECKS</span><strong id="metric-checks">0</strong><span class="metric-caption">responses processed</span></article>
+      <article class="metric"><span class="metric-label">UNOWNED</span><strong id="metric-unowned">0</strong><span class="metric-caption">available groups found</span></article>
+      <article class="metric"><span class="metric-label">OWNED</span><strong id="metric-owned">0</strong><span class="metric-caption">owner assigned</span></article>
+      <article class="metric"><span class="metric-label">LOCKED / CLOSED</span><strong><span id="metric-locked">0</span><span class="metric-slash">/</span><span id="metric-blocked">0</span></strong><span class="metric-caption">locked / entry blocked</span></article>
+      <article class="metric"><span class="metric-label">RATE LIMITS</span><strong id="metric-limited">0</strong><span class="metric-caption">server cooldowns</span></article>
+    </section>
+
+    <section class="work-grid">
+      <section class="panel activity-panel" aria-labelledby="activity-title">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">STREAM <span id="live-indicator" class="live-indicator"><span></span> LIVE</span></p>
+            <h2 id="activity-title">Recent activity</h2>
+          </div>
+          <span id="log-count" class="small-count">0 events</span>
+        </div>
+        <div id="activity-list" class="activity-list" aria-live="polite">
+          <p class="empty-state">Waiting for scanner activity.</p>
+        </div>
+      </section>
+
+      <section class="panel settings-panel" aria-labelledby="settings-title">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">CONFIGURATION</p>
+            <h2 id="settings-title">Scan settings</h2>
+          </div>
+          <span id="webhook-state" class="config-state">Webhook not set</span>
+        </div>
+        <form id="settings-form">
+          <label class="field">
+            <span>Discord webhook <span class="field-note">leave blank to keep current</span></span>
+            <input id="webhook" name="webhook" type="password" autocomplete="new-password" placeholder="Paste a new webhook URL" spellcheck="false">
+          </label>
+          <div class="field-pair">
+            <label class="field">
+              <span>Workers <span class="field-note">1–5</span></span>
+              <input id="worker-count" name="worker_count" type="number" min="1" max="5" step="1" value="1" required>
+            </label>
+            <label class="field">
+              <span>Request interval <span class="field-note">seconds</span></span>
+              <input id="request-interval" name="request_interval" type="number" min="1" max="60" step="0.5" value="3" required>
+            </label>
+          </div>
+          <label class="field field-timeout">
+            <span>Request timeout <span class="field-note">seconds · 1–30</span></span>
+            <input id="request-timeout" name="request_timeout" type="number" min="1" max="30" step="1" value="10" required>
+          </label>
+          <div class="field-pair">
+            <label class="field">
+              <span>First group ID</span>
+              <input id="group-id-min" name="group_id_min" type="number" min="1" max="2147483647" step="1" value="1000000" required>
+            </label>
+            <label class="field">
+              <span>Last group ID</span>
+              <input id="group-id-max" name="group_id_max" type="number" min="1" max="2147483647" step="1" value="9999999" required>
+            </label>
+          </div>
+          <p class="range-note">Each ID in this range is checked once per run, starting at a randomized point.</p>
+          <label class="toggle-row" for="console-progress">
+            <span class="toggle-copy"><strong>Show scan logs in CMD</strong><small>Print each scan result in the terminal too</small></span>
+            <input id="console-progress" name="console_progress" type="checkbox">
+            <span class="toggle-switch" aria-hidden="true"></span>
+          </label>
+          <div class="form-footer">
+            <span class="form-footnote">Scan parameters apply next start; CMD scan logs apply immediately.</span>
+            <button class="button button-save" type="submit">Save settings <span aria-hidden="true">↗</span></button>
+          </div>
+        </form>
+      </section>
+    </section>
+
+    <section class="panel groups-panel" aria-labelledby="groups-title">
+      <div class="panel-heading groups-heading">
+        <div>
+          <p class="section-kicker">API RESPONSE DETAILS</p>
+          <h2 id="groups-title">Groups checked</h2>
+        </div>
+        <div class="group-tools">
+          <label class="visually-hidden" for="group-search">Search group name, owner, or ID</label>
+          <input id="group-search" type="search" placeholder="Search groups" autocomplete="off">
+          <label class="visually-hidden" for="group-filter">Filter groups by status</label>
+          <select id="group-filter">
+            <option value="all">All statuses</option>
+            <option value="unowned">Unowned</option>
+            <option value="owned">Owned</option>
+            <option value="locked">Locked</option>
+            <option value="entry_blocked">Entry blocked</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>GROUP</th><th>OWNER</th><th>MEMBERS</th><th>ENTRY</th><th>STATUS</th><th></th></tr>
+          </thead>
+          <tbody id="groups-body"><tr><td class="table-empty" colspan="6">Group details will appear as the API responds.</td></tr></tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span id="group-count">0 groups</span><span>Latest API responses · details stay on this machine</span></div>
+    </section>
+
+    <dialog id="group-dialog" class="group-dialog" aria-labelledby="detail-name">
+      <div class="dialog-topline">
+        <p class="section-kicker">GROUP PROFILE <span id="detail-status" class="status-badge">Status</span></p>
+        <button id="detail-close" class="icon-button" type="button" aria-label="Close group details">×</button>
+      </div>
+      <div class="detail-identity">
+        <div class="detail-thumbnail" id="detail-thumbnail-wrap"><span>R</span></div>
+        <div class="detail-title">
+          <h2 id="detail-name">Group details</h2>
+          <span id="detail-id" class="group-id"></span>
+          <a id="detail-link" class="group-link detail-link" target="_blank" rel="noopener noreferrer">View on Roblox ↗</a>
+        </div>
+      </div>
+      <p id="detail-description" class="detail-description"></p>
+      <dl class="detail-grid">
+        <div><dt>Owner</dt><dd id="detail-owner">Unknown</dd></div>
+        <div><dt>Members</dt><dd id="detail-members">Unknown</dd></div>
+        <div><dt>Public entry</dt><dd id="detail-entry">Unknown</dd></div>
+        <div><dt>Group status</dt><dd id="detail-lock">Unknown</dd></div>
+        <div><dt>Created</dt><dd id="detail-created">Unknown</dd></div>
+        <div><dt>Verified</dt><dd id="detail-verified">Unknown</dd></div>
+      </dl>
+      <section class="detail-shout" aria-labelledby="shout-title">
+        <h3 id="shout-title">Group shout</h3>
+        <p id="detail-shout">No current shout.</p>
+      </section>
+    </dialog>
+    <footer class="page-footer"><span>RoFinder local console</span><span id="last-updated">Waiting for first update</span></footer>
+  </main>
+</body>
+</html>
