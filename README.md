@@ -31,6 +31,6 @@ python main.py
 
 Use the console menu to start or stop scanning and edit settings. Open the dashboard URL printed in the console for live logs, group details, and settings. Scanning starts only after you choose **Start scanning**.
 
-The configured group ID range is checked once per scan, beginning at a randomized point. The default range is 1,000,000 to 9,999,999; you can change it in the dashboard. Roblox does not provide a public API that lists every unclaimed group, so finding one is not guaranteed.
+The configured group ID range is checked once per scan, beginning at a randomized point. The default range is 1,000,000 to 9,999,999; you can change it in the dashboard.
 
 *RoFinder | By: RXNation*
