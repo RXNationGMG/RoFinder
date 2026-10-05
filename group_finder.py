@@ -173,7 +173,7 @@ async def _check_group(
         "title": "Group Found!",
         "description": f"[Click here to view the group](https://www.roblox.com/groups/group.aspx?gid={group_id})",
         "color": 3066993,
-        "footer": {"text": "RoFinder | By: RXNationGaming"},
+        "footer": {"text": "RoFinder | By: RXNation"},
     }
     _emit_event(
         on_event,
